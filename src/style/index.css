@@ -6,4 +6,10 @@ body {
     font-family: "Poppins", sans-serif;
     font-weight: 400;
     font-style: normal;
+    background-color: #0f0f0f;
+    color: white;
+}
+
+.element-with-scrollbar::-webkit-scrollbar {
+    display: none;
 }

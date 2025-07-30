@@ -50,7 +50,7 @@ const Header = () => {
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/YouTube_2024_%28white_text%29.svg/1200px-YouTube_2024_%28white_text%29.svg.png"
             alt="YouTube Logo"
-            className="h-[24px] cursor-pointer"
+            className=" h-[16px] sm:h-[24px] cursor-pointer"
             onClick={() => navigate('/')}
           />
         </div>
@@ -86,10 +86,10 @@ const Header = () => {
         </div> */}
 
         {/* Right Section */}
-        <div className="flex items-center gap-4 ">
-          <button onClick={() => navigate('/login')} className=" flex items-center gap-2 min-w-[100px]  px-3 py-2 border border-gray-600 rounded-full hover:bg-[#222] transition">
+        <div className="flex items-center gap-2">
+          <button onClick={() => navigate('/signin')} className=" flex items-center gap-2 px-3   min-w-[100px]   py-2 border border-gray-600 rounded-full hover:bg-[#222] transition">
             <CircleUser size={20} />
-            <span>Sign in</span>
+            <p>Sign in</p>
           </button>
         </div>
       </header>
@@ -106,7 +106,7 @@ export default Header;
 
 const FilterVideos = () => {
   return (
-    <nav className="element-with-scrollbar sticky top-14 ml-18 bg-[#0f0f0f] h-[40px] flex items-center overflow-x-auto">
+    <nav className="element-with-scrollbar sticky top-14 ml-18 bg-[#0f0f0f] h-[50px] flex items-center overflow-x-auto">
       <ul className=" flex items-center gap-3 h-full px-4 whitespace-nowrap">
         {[
           "All", "Music", "Irshad Kamil", "CID", "Live", "Podcasts", "News",
@@ -115,7 +115,7 @@ const FilterVideos = () => {
         ].map((item, index) => (
           <li
             key={index}
-            className={`bg-[#212121] px-4 mb-2 h-[32px] mt-2 rounded-md flex items-center justify-center cursor-pointer
+            className={`bg-[#212121]  ${index == 0 ? 'ml-2' : ''}  px-5 mb-2 h-[35px] mt-2 rounded-md flex items-center justify-center cursor-pointer
               ${index === 0 ? 'bg-white text-black' : 'text-white hover:bg-[#505050]'}`}
           >
             {item}
@@ -130,10 +130,10 @@ const FilterVideos = () => {
 const SideBarView = ({ sideBar }) => {
   return (
     <aside
-      className={`fixed top-[56px] left-0 h-full bg-[#0f0f0f] text-white overflow-hidden transition-all duration-300 ${sideBar ? 'w-[240px]' : 'w-[72px]'
+      className={`fixed border-r-1 border-gray-600 top-[56px] left-0 h-full bg-[#0f0f0f] text-white overflow-hidden transition-all duration-300 ${sideBar ? 'w-[240px]' : 'w-[84px]'
         }`}
     >
-      <nav className="flex flex-col py-2">
+      <nav className="flex flex-col gap-4 py-2">
         {IconsData.map((item) => (
           <SideBarIconCard key={item.id} sideBar={sideBar} data={item} />
         ))}
@@ -148,7 +148,7 @@ const SideBarIconCard = ({ sideBar, data }) => {
   return (
     <div
       onClick={() => navigate(data.path)}
-      className={`flex items-center py-5 hover:bg-[#1f1f1f] transition cursor-pointer ${sideBar
+      className={`flex items-center  h-[50px]  rounded-lg ml-2 mr-2  hover:bg-[#1f1f1f] transition cursor-pointer ${sideBar
         ? 'flex-row gap-4 px-4 py-2'
         : 'flex-col justify-center gap-1 py-4'
         }`}

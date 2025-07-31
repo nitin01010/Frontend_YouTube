@@ -15,13 +15,13 @@ const IconsData = [
     id: 2,
     text: 'Shorts',
     iconImageUrl: youtubeShortIcon,
-    path: '/',
+    path: '/shorts',
   },
   {
     id: 3,
     text: 'Subscriptions',
     iconImageUrl: 'https://img.icons8.com/ios-glyphs/30/FFFFFF/video-playlist.png',
-    path: '/',
+    path: '/Subscriptions',
   },
   {
     id: 4,
@@ -130,7 +130,7 @@ const FilterVideos = () => {
 const SideBarView = ({ sideBar }) => {
   return (
     <aside
-      className={`fixed border-r-1 border-gray-600 top-[56px] left-0 h-full bg-[#0f0f0f] text-white overflow-hidden transition-all duration-300 ${sideBar ? 'w-[240px]' : 'w-[84px]'
+      className={`fixed border-r-1 z-50 border-gray-600 top-[56px] left-0 h-full bg-[#0f0f0f] text-white overflow-hidden transition-all duration-300 ${sideBar ? 'w-[240px]' : 'w-[84px]'
         }`}
     >
       <nav className="flex flex-col gap-4 py-2">

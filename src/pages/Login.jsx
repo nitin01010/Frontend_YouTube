@@ -31,7 +31,7 @@ const Login = () => {
           <input type="email" placeholder='Email' className=" border-1 border-gray-400 shadow rounded-md outline-none border-none py-2 text-black px-3 bg-white" value={input.email} onChange={(e) => HandleInputChange(e.target)} name="email" />
           <p className=' text-white font-semibold px-2 '>Password</p>
           <input type="password" placeholder='Passowrd' className=" border-1 border-gray-400 shadow rounded-md outline-none border-none py-2 text-black px-3 bg-white" value={input.password} onChange={(e) => HandleInputChange(e.target)} name="password" />
-          <button onClick={HandleSubmit} className=" bg-red-600 py-2 mt-4 text-lg font-bold rounded-md text-white ">Sign in</button>
+          <button onClick={HandleSubmit} className=" bg-red-600 py-2 mt-4 text-lg font-bold rounded-md text-white ">Login</button>
           <p onClick={()=> navigate('/signin')} className=" underline  text-blue-800 text-end  mt-3 ">Don't have an account? Sign in</p>
         </div>
       </div>

@@ -1,10 +1,11 @@
 import { use, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import { loginAccount } from "../api/api";
+import { useMutation } from "@tanstack/react-query";
 
 const Login = () => {
-    const [input, SetInput] = useState({
+  const [input, SetInput] = useState({
     email: '',
     password: ''
   });
@@ -14,16 +15,36 @@ const Login = () => {
     SetInput(values => ({ ...values, [name]: value }))
   }
 
+
+
+  const navigate = useNavigate();
+
+
+  const { mutate } = useMutation({
+    mutationFn: ({email, password }) =>
+      loginAccount({ email, password }),
+    onSuccess: (res) => {
+      toast(res.message);
+      localStorage.setItem("authToken", res.token);
+      navigate("/");
+      SetInput({ password: '', email: '' });
+    },
+    onError: (err) => {
+      const message = err?.response?.data?.message || 'Something went wrong.';
+      toast(message);
+    },
+  });
+
+
   const HandleSubmit = () => {
     const { email, password } = input;
     if (!email || !password) return toast('Please enter valid input');
+    mutate({ email, password });
     SetInput({ email: '', password: '' });
-    toast("Account Login");
   }
-  const navigate = useNavigate();
 
   return (
-     <div className=' bg-[#0f0f0f]  h-screen m-auto ml-21  p-2  '>
+    <div className=' bg-[#0f0f0f]  h-screen m-auto ml-21  p-2  '>
       <div className='  w-full md:w-[50%] lg:w-[35%] xl:w-[40%]  m-auto  h-[600px]  py-20 '>
         <h1 className=' text-3xl   text-center text-white mt-5 font-bold '><b>Welcome Back....</b></h1>
         <div className=" flex flex-col gap-4 mt-10 ">
@@ -32,7 +53,7 @@ const Login = () => {
           <p className=' text-white font-semibold px-2 '>Password</p>
           <input type="password" placeholder='Passowrd' className=" border-1 border-gray-400 shadow rounded-md outline-none border-none py-2 text-black px-3 bg-white" value={input.password} onChange={(e) => HandleInputChange(e.target)} name="password" />
           <button onClick={HandleSubmit} className=" bg-red-600 py-2 mt-4 text-lg font-bold rounded-md text-white ">Login</button>
-          <p onClick={()=> navigate('/signin')} className=" underline  text-blue-800 text-end  mt-3 ">Don't have an account? Sign in</p>
+          <p onClick={() => navigate('/signin')} className=" underline  text-blue-800 text-end  mt-3 ">Don't have an account? Sign in</p>
         </div>
       </div>
     </div>

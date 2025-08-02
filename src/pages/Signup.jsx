@@ -1,9 +1,12 @@
-import { use, useState } from "react"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useMutation } from '@tanstack/react-query';
+import { signinAccount } from "../api/api";
 
 
 const Signup = () => {
+  const [messageError, setMessageError] = useState();
   const [input, SetInput] = useState({
     username: '',
     email: '',
@@ -15,14 +18,33 @@ const Signup = () => {
     SetInput(values => ({ ...values, [name]: value }))
   }
 
-  const HandleSubmit = () => {
-    const { username, email, password } = input;
-    if (!username || !email || !password) return toast('Please enter valid input');
-    SetInput({ email: '', password: '', username: '' });
-    toast("Account Created");
-  }
-
   const navigate = useNavigate();
+
+  const { mutate } = useMutation({
+    mutationFn: ({ username, email, password }) =>
+      signinAccount({ username, email, password }),
+    onSuccess: (res) => {
+      toast(res.message); 
+      localStorage.setItem("authToken",res.token);
+      navigate('/')
+      setMessageError(res.message);
+      SetInput({ email: '', password: '', username: '' }); 
+    },
+    onError: (err) => {
+      const message = err?.response?.data?.message || 'Something went wrong.';
+      toast(message);
+      setMessageError(message); // Optional
+    },
+  });
+
+  const handleSubmit = () => {
+    const { username, email, password } = input;
+    if (!username || !email || !password) {
+      return toast('Please enter valid input');
+    }
+    mutate({ username, email, password });
+   
+  };
 
   return (
     <div className=' bg-[#0f0f0f]  h-screen m-auto ml-21  p-2  '>
@@ -35,8 +57,8 @@ const Signup = () => {
           <input type="email" placeholder='Email' className=" border-1 border-gray-400 shadow rounded-md outline-none border-none py-2 text-black px-3 bg-white" value={input.email} onChange={(e) => HandleInputChange(e.target)} name="email" />
           <p className=' text-white font-semibold px-2 '>Password</p>
           <input type="password" placeholder='Passowrd' className=" border-1 border-gray-400 shadow rounded-md outline-none border-none py-2 text-black px-3 bg-white" value={input.password} onChange={(e) => HandleInputChange(e.target)} name="password" />
-          <button onClick={HandleSubmit} className=" bg-red-600watch? bg-red-600 py-2 mt-4 text-lg font-bold rounded-md text-white ">Sign in</button>
-          <p onClick={()=> navigate('/login')} className=" underline  text-blue-800 text-end  mt-3 ">Have an account? Login</p>
+          <button onClick={handleSubmit} className=" bg-red-600watch? bg-red-600 py-2 mt-4 text-lg font-bold rounded-md text-white ">Sign in</button>
+          <p onClick={() => navigate('/login')} className=" underline  text-blue-800 text-end  mt-3 ">Have an account? Login</p>
         </div>
       </div>
     </div>

@@ -1,8 +1,8 @@
-import { ArrowDownToLine, Forward, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { ArrowDownToLine, EllipsisVertical, Forward, Pen, ThumbsDown, ThumbsUp, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { findByIdVideoPlay } from '../api/api';
-import { useMutation } from '@tanstack/react-query';
+import { createComments, DeleteComments, findByIdVideoPlay } from '../api/api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const VideoPlayer = () => {
   const [showDescription, setShowDescription] = useState(false);
@@ -15,6 +15,9 @@ const VideoPlayer = () => {
   });
 
 
+
+
+
   useEffect(() => {
     if (fullId) {
       mutate(fullId);
@@ -22,7 +25,7 @@ const VideoPlayer = () => {
   }, [fullId, mutate]);
 
   if (isLoading) return <div className=' ml-22 font-bold text-2xl uppercase text-center  p-10'>Loading...</div>;
-  
+
   if (isError) return <div className=' ml-22 font-bold text-2xl uppercase text-center  p-10'>Error: {error.message}</div>;
 
   if (!data) return <div className=' ml-22 font-bold text-2xl uppercase text-center  p-10'>No data yet</div>;
@@ -40,24 +43,21 @@ const VideoPlayer = () => {
     thumbnailUrl,
   } = data?.data;
 
-
   return (
     <div className=' ml-21.5 p-2  transition-all ease-linear flex gap-3 '>
       <div className="w-full px-4 sm:px-6 md:px-1 transition-all ease-linear mt-1">
-        <VideoPage id={id} />
+        {/* <VideoPage id={id} /> */}
         <TitlePage title={title} />
         <ButtonsPages item={{ likes, dislikes, thumbnailUrl, channelId, subscribers }} />
         <DescriptionPage item={{ showDescription, setShowDescription, views, description, uploadDate }} />
-        <CommentPage item={comments} />
+        <CommentPage item={comments} fullId={fullId} />
       </div>
-      <div className=' hidden transition-all ease-linear lg:block rounded-lg bg-[#5757576c] p-1 w-[500px] '>
-      </div>
+      <div className=' hidden transition-all ease-linear lg:block rounded-lg bg-[#5757576c] p-1 w-[500px] ' />
     </div>
   )
 }
 
 export default VideoPlayer
-
 
 const VideoPage = ({ id }) => {
   return (
@@ -146,59 +146,123 @@ const DescriptionPage = ({ item }) => {
 
 const CommentPage = (props) => {
   const [input, setInput] = useState({ comment: '' });
+  const [activeMenuIndex, setActiveMenuIndex] = useState(null);
+
+  const toggleMenu = (index) => {
+    setActiveMenuIndex(prev => prev === index ? null : index);
+  };
+
+  const handleEdit = (item) => {
+    console.log("Edit clicked:", item);
+    setActiveMenuIndex(null);
+  };
+
+
+
+  const { mutate } = useMutation({
+    mutationFn: (val) => createComments(val),
+    onSuccess: () => {
+      window.location.reload();
+    },
+    onError: (err) => {
+      console.error('Search error:', err);
+    },
+  });
+
+  const handleComments = () => {
+    const { comment } = input;
+    const authToken = localStorage.getItem("authToken");
+    mutate({ comments: comment, authToken, videoId: props?.fullId })
+    setInput({ comment: '' });
+  }
+
+  const { mutate: mutate1 } = useMutation({
+    mutationFn: DeleteComments, 
+    onSuccess:()=> {
+        window.location.reload();
+    }
+  });
+
+  const handleDelete = (item) => {
+    const { userId, _id: commentId } = item;
+    const videoId = props?.fullId;
+
+    mutate1({ userId, videoId, commentId });
+    setActiveMenuIndex(null);
+  };
+
   return (
     <div className='rounded-sm'>
-      <h2 className='py-2 mb-2 rounded-sm font-bold text-xl '>{props?.item?.length} Comments</h2>
+      <h2 className='py-2 mb-2 font-bold text-xl'>{props?.item?.length} Comments</h2>
+
       <div className='flex gap-3 items-center'>
         <img
           src='https://yt3.ggpht.com/a/default-user=s48-c-k-c0x00ffffff-no-rj'
-          className='object-contain w-[40px] h-[40px] rounded-full'
+          className='w-[40px] h-[40px] rounded-full object-contain'
         />
         <textarea
-          className='w-full h-[30px] resize-none outline-none border-b border-[#575757] overflow-hidden text-sm px-2 py-1'
+          className='w-full h-[30px] resize-none outline-none border-b border-[#575757] text-sm px-2 py-1'
           rows={1}
           value={input.comment}
           onChange={(e) => setInput({ ...input, comment: e.target.value })}
         />
       </div>
+
       <div className='flex justify-end mt-2'>
         <button
           disabled={input.comment === ''}
+          onClick={handleComments}
           className={`w-[120px] h-[36px] text-sm rounded-full 
-      ${input.comment === '' ? 'bg-[#575757] text-gray-400  cursor-not-allowed' : 'bg-blue-400 hover:bg-blue-700'} 
-       transition-colors duration-200 text-black`}
+            ${input.comment === '' ? 'bg-[#575757] text-gray-400 cursor-not-allowed' : 'bg-blue-400 hover:bg-blue-700'} 
+            transition-colors duration-200 text-black`}
         >
           Comment
         </button>
       </div>
-      {
-        props?.item?.map((item, idx) => {
-          const { text, userId, timestamp } = item;
-          const date = new Date(timestamp);
-          const formatted = date.toLocaleDateString('en-US', {
-            day: '2-digit',
-            month: 'short'
-          });
-          return (
-            <div key={idx} className='flex  mt-4 hover:bg-[#5757576c] transition duration-700 ease-in-out p-1   rounded-lg py-2 items-start gap-5'>
-              <img
-                src='https://yt3.ggpht.com/a/default-user=s48-c-k-c0x00ffffff-no-rj'
-                className='w-[42px] h-[42px] rounded-full object-cover  shrink-0'
-              />
-              <div className='w-full'>
-                <div className='flex items-center gap-5 text-gray-300'>
-                  <h2 className='capitalize text-sm'>@{userId}</h2>
-                  <p className='text-sm'>{formatted} </p>
-                </div>
-                <p className='text-sm py-2'>
-                  {text}
-                </p>
-              </div>
-            </div>
-          )
-        })
-      }
 
+      {props?.item?.slice().reverse().map((item, idx) => {
+        const { text, timestamp, userName } = item;
+        const date = new Date(timestamp);
+        const formatted = date.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        });
+
+        return (
+          <div
+            key={idx}
+            className='flex items-center relative mt-4 hover:bg-[#5757576c] transition duration-700 p-1 rounded-lg py-2 gap-5'
+          >
+            <img
+              src='https://yt3.ggpht.com/a/default-user=s48-c-k-c0x00ffffff-no-rj'
+              className='w-[42px] h-[42px] rounded-full object-cover'
+            />
+            <div className='w-full'>
+              <div className='flex items-center gap-5 text-gray-300'>
+                <h2 className='capitalize text-sm'>@{userName}</h2>
+                <p className='text-sm'>{formatted}</p>
+              </div>
+              <p className='text-sm py-2'>{text}</p>
+            </div>
+
+            <EllipsisVertical
+              onClick={() => toggleMenu(idx)}
+              className='cursor-pointer'
+            />
+
+            {/* Dropdown menu */}
+            {activeMenuIndex === idx && (
+              <div
+                className='absolute flex justify-around items-center w-[131px] bg-[#414141] right-1 top-14 p-2 h-[40px] rounded-md z-10'
+              >
+                <Pen size={20} onClick={() => handleEdit(item)} className='cursor-pointer hover:text-blue-500' />
+                <Trash size={20} onClick={() => handleDelete(item)} className='cursor-pointer hover:text-blue-500' />
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
-  )
-}
+  );
+};

@@ -25,3 +25,38 @@ export const findBySearch = async ({ search }) => {
   });
   return response.data;
 };
+
+export const signinAccount = async ({ username, email, password }) => {
+  const response = await axios.post('http://localhost:8080/api/v1/user/register', {
+    username,
+    email,
+    password
+  });
+  return response.data;
+};
+
+export const loginAccount = async ({ email, password }) => {
+  const response = await axios.post('http://localhost:8080/api/v1/user/login', {
+    email,
+    password
+  });
+  return response.data;
+};
+
+export const createComments = async ({ comments, videoId, authToken }) => {
+  const response = await axios.post('http://localhost:8080/api/v1/youtube/comments', {
+    comments, videoId, authToken
+  });
+  return response.data;
+};
+
+export const DeleteComments = async ({ userId,
+  videoId,
+  commentId, }) => {
+  const response = await axios.post('http://localhost:8080/api/v1/youtube/comment/delete', {
+    userId,
+    videoId,
+    commentId,
+  });
+  return response.data;
+};

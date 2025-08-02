@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { ArrowDownToLine, Forward, ThumbsDown, ThumbsUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
@@ -6,24 +5,40 @@ import { findByIdVideoPlay } from '../api/api';
 import { useMutation } from '@tanstack/react-query';
 
 const VideoPlayer = () => {
-  const [data, setData] = useState([]);
   const [showDescription, setShowDescription] = useState(false);
   const { id } = useParams();
   const location = useLocation();
   const fullId = `${id}${location.search}`;
 
-  const handleData = async () => {
-    const response = await axios.post('http://localhost:8080/api/v1/youtube/watch', { id: fullId });
-    setData(response?.data?.data);
-  }
+  const { mutate, isLoading, isError, error, data } = useMutation({
+    mutationFn: (id) => findByIdVideoPlay({ id }),
+  });
+
 
   useEffect(() => {
-    handleData();
-  }, []);
+    if (fullId) {
+      mutate(fullId);
+    }
+  }, [fullId, mutate]);
 
-  const { title, channelId, dislikes, likes, views, description, subscribers, uploadDate, comments, thumbnailUrl } = data;
+  if (isLoading) return <div className=' ml-22 font-bold text-2xl uppercase text-center  p-10'>Loading...</div>;
+  
+  if (isError) return <div className=' ml-22 font-bold text-2xl uppercase text-center  p-10'>Error: {error.message}</div>;
 
+  if (!data) return <div className=' ml-22 font-bold text-2xl uppercase text-center  p-10'>No data yet</div>;
 
+  const {
+    title,
+    channelId,
+    dislikes,
+    likes,
+    views,
+    description,
+    subscribers,
+    uploadDate,
+    comments,
+    thumbnailUrl,
+  } = data?.data;
 
 
   return (

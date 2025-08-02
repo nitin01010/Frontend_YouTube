@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Bell, CircleUser, Menu, Mic, Search, Video } from 'lucide-react';
 import youtubeHomeIcon from '../assets/youtubeHomeIcon.png';
 import youtubeShortIcon from '../assets/youtubeShortIocn.png';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { useMutation } from '@tanstack/react-query';
+import { findBycategory, findBySearch } from '../api/api';
+import { setVideos } from '../features/youtube/youtubeSlice';
 
 const IconsData = [
   {
@@ -32,14 +36,37 @@ const IconsData = [
 ];
 
 const Header = () => {
+  const dispatch = useDispatch();
   const [sideBar, setSidebar] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
+  const [input, setInput] = useState({ search: '' });
+  const HandleInput = (e) => {
+    const { name, value } = e.target;
+    setInput((values) => ({ ...values, [name]: value }));
+  };
+
+  const { mutate } = useMutation({
+    mutationFn: (searchText) => findBySearch({ search: searchText }),
+    onSuccess: (res) => {
+      dispatch(setVideos(res));
+    },
+    onError: (err) => {
+      console.error('Search error:', err);
+    },
+  });
+
+  const HandleSearch = () => {
+    if (input.search.trim() === '') return;
+    mutate(input.search);
+  };
+
+
   return (
     <>
-      <header className="sticky top-0 z-50 flex items-center justify-between bg-[#0f0f0f] px-4 h-[56px]  text-white">
-        {/* Left Section */}
+      <header className="sticky top-0 z-50 flex items-center justify-between bg-[#0f0f0f] px-4 h-[56px] text-white">
+        {/* Left */}
         <div className="flex items-center gap-4">
           <button
             onClick={() => setSidebar(!sideBar)}
@@ -50,20 +77,23 @@ const Header = () => {
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/YouTube_2024_%28white_text%29.svg/1200px-YouTube_2024_%28white_text%29.svg.png"
             alt="YouTube Logo"
-            className=" h-[16px] sm:h-[24px] cursor-pointer"
+            className="h-[16px] sm:h-[24px] cursor-pointer"
             onClick={() => navigate('/')}
           />
         </div>
 
-        {/* Middle Section (Search) */}
-        <div className=" flex items-center justify-end flex-grow max-w-3xl gap-3 px-4">
-          <div className=" hidden md:flex flex-grow  ">
+        {/* Middle (Search) */}
+        <div className="flex items-center justify-end flex-grow max-w-3xl gap-3 px-4">
+          <div className="hidden md:flex flex-grow">
             <input
               type="text"
+              name="search"
+              value={input.search}
+              onChange={HandleInput}
               placeholder="Search"
-              className="w-full px-4  py-2 bg-[#121212] text-white border border-[#303030] rounded-l-full focus:outline-none"
+              className="w-full px-4 py-2 bg-[#121212] text-white border border-[#303030] rounded-l-full focus:outline-none"
             />
-            <button className="bg-[#222] px-4 rounded-r-full">
+            <button onClick={HandleSearch} className="bg-[#222] px-4 rounded-r-full">
               <Search size={20} />
             </button>
           </div>
@@ -72,30 +102,22 @@ const Header = () => {
           </button>
         </div>
 
-
-        {/* <div className=' flex items-center  gap-10  w-[15%] mt-2'>
-          <span className=' hover:bg-[#212121] transition-all ease-linear min-w-[40px] w-[40px] h-[40px]  rounded-full flex items-center justify-center'>
-            <Video size={30} />
-          </span>
-          <span className=' hover:bg-[#212121] transition-all ease-linear min-w-[40px] w-[40px] h-[40px]  rounded-full flex items-center justify-center'>
-            <Bell size={28} />
-          </span>
-          <span className=' hover:bg-[#212121] transition-all ease-linear min-w-[40px] w-[40px] h-[40px]  rounded-full flex items-center justify-center'>
-            <CircleUser size={30} />
-          </span>
-        </div> */}
-
-        {/* Right Section */}
+        {/* Right */}
         <div className="flex items-center gap-2">
-          <button onClick={() => navigate('/signin')} className=" flex items-center gap-2 px-3   min-w-[100px]   py-2 border border-gray-600 rounded-full hover:bg-[#222] transition">
+          <button
+            onClick={() => navigate('/signin')}
+            className="flex items-center gap-2 px-3 min-w-[100px] py-2 border border-gray-600 rounded-full hover:bg-[#222] transition"
+          >
             <CircleUser size={20} />
             <p>Sign in</p>
           </button>
         </div>
       </header>
-      {
-        currentPath === '/' ? <FilterVideos /> : null
-      }
+
+      {/* Render Filtered Videos on Home Page */}
+      {currentPath === '/' && <FilterVideos />}
+
+      {/* Sidebar */}
       <SideBarView sideBar={sideBar} />
     </>
   );
@@ -105,27 +127,51 @@ export default Header;
 
 
 const FilterVideos = () => {
+  const dispatch = useDispatch();
+  const videos = useSelector((state) => state.youtubeSlice.value);
+
+  const [categories, setCategories] = useState([]);
+  const [activeTab, setActiveTab] = useState("all");
+
+  const { mutate } = useMutation({
+    mutationFn: (category) => findBycategory({ category }),
+    onSuccess: (res) => {
+      dispatch(setVideos(res.data));
+    },
+  });
+
+  useEffect(() => {
+    mutate("all");
+  }, []);
+
+  useEffect(() => {
+    if (categories.length === 0 && videos.length > 0) {
+      const uniqueCats = Array.from(new Set(videos.map(v => v.category).filter(Boolean)));
+      setCategories(["all", ...uniqueCats]);
+    }
+  }, [videos]);
+
   return (
     <nav className="element-with-scrollbar sticky top-14 ml-18 bg-[#0f0f0f] h-[50px] flex items-center overflow-x-auto">
-      <ul className=" flex items-center gap-3 h-full px-4 whitespace-nowrap">
-        {[
-          "All", "Music", "Irshad Kamil", "CID", "Live", "Podcasts", "News",
-          "Jukebox", "Tamil Cinema", "Gopal Bhar", "Gaming", "Indian soap operas",
-          "All", "Music", "Irshad Kamil", "CID"
-        ].map((item, index) => (
+      <ul className="flex items-center gap-3 h-full px-4 whitespace-nowrap">
+        {categories.map((tab, i) => (
           <li
-            key={index}
-            className={`bg-[#212121]  ${index == 0 ? 'ml-2' : ''}  px-5 mb-2 h-[35px] mt-2 rounded-md flex items-center justify-center cursor-pointer
-              ${index === 0 ? 'bg-white text-black' : 'text-white hover:bg-[#505050]'}`}
+            key={tab}
+            onClick={() => {
+              setActiveTab(tab);
+              mutate(tab);
+            }}
+            className={`px-5 mb-2 h-[35px] mt-2 rounded-md cursor-pointer flex items-center justify-center
+              ${activeTab === tab ? "bg-white text-black" : "bg-[#212121] text-white hover:bg-[#505050]"}
+              ${i === 0 ? "ml-2" : ""}`}
           >
-            {item}
+            {tab}
           </li>
         ))}
       </ul>
     </nav>
   );
 };
-
 
 const SideBarView = ({ sideBar }) => {
   return (
@@ -141,7 +187,6 @@ const SideBarView = ({ sideBar }) => {
     </aside>
   );
 };
-
 
 const SideBarIconCard = ({ sideBar, data }) => {
   const navigate = useNavigate();

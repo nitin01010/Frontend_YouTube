@@ -11,3 +11,17 @@ export const findByIdVideoPlay = async ({ id }) => {
   });
   return response.data;
 };
+
+export const findBycategory = async ({ category }) => {
+  const response = await axios.post('http://localhost:8080/api/v1/youtube/category', {
+    category,
+  });
+  return response.data;
+};
+
+export const findBySearch = async ({ search }) => {
+  const response = await axios.post('http://localhost:8080/api/v1/youtube/search', {
+    search,
+  });
+  return response.data;
+};

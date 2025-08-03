@@ -8,6 +8,7 @@ import Shorts from "../pages/Shorts";
 import Subscriptions from "../pages/Subscriptions";
 import VideoPlayer from "../pages/VideoPlayer";
 import ErrorPage from "../pages/ErrorPage";
+import YourProfile from "../pages/yourProfile";
 
 
 
@@ -35,6 +36,9 @@ const appRoute = createBrowserRouter([
       },
       {
         path: '/Subscriptions', element: <Subscriptions />
+      },
+      {
+        path: '/profile', element: <YourProfile />
       },
     ],
     errorElement:<ErrorPage />

@@ -7,29 +7,25 @@ import { useSelector } from "react-redux";
 
 const Signup = () => {
   const user = useSelector(state => state.user.value);
-
   const [input, SetInput] = useState({
     username: '',
     email: '',
     password: ''
   });
-
   const HandleInputChange = (eventVal) => {
     const { name, value } = eventVal;
     SetInput(values => ({ ...values, [name]: value }))
   }
-
   const navigate = useNavigate();
-
   const { mutate } = useMutation({
     mutationFn: ({ username, email, password }) =>
       signinAccount({ username, email, password }),
     onSuccess: (res) => {
-      toast(res.message); 
-      localStorage.setItem("authToken",res.token);
+      toast(res.message);
+      localStorage.setItem("authToken", res.token);
       navigate('/')
       setMessageError(res.message);
-      SetInput({ email: '', password: '', username: '' }); 
+      SetInput({ email: '', password: '', username: '' });
     },
     onError: (err) => {
       const message = err?.response?.data?.message || 'Something went wrong.';
@@ -37,23 +33,19 @@ const Signup = () => {
       setMessageError(message); // Optional
     },
   });
-
   const handleSubmit = () => {
     const { username, email, password } = input;
     if (!username || !email || !password) {
       return toast('Please enter valid input');
     }
     mutate({ username, email, password });
-   
-  };
 
-  
- useEffect(() => {
+  };
+  useEffect(() => {
     if (user?.success) {
       navigate('/');
     }
   }, [user, navigate]);
-
   return (
     <div className=' bg-[#0f0f0f]    m-0 sm:ml-21  p-2  '>
       <div className='  w-full md:w-[50%] lg:w-[35%] xl:w-[40%]  m-auto  h-[600px]  py-20 '>
@@ -72,5 +64,4 @@ const Signup = () => {
     </div>
   )
 }
-
 export default Signup

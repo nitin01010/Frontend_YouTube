@@ -17,12 +17,10 @@ const Login = () => {
     SetInput(values => ({ ...values, [name]: value }))
   }
 
-
-
   const navigate = useNavigate();
 
   const { mutate } = useMutation({
-    mutationFn: ({email, password }) =>
+    mutationFn: ({ email, password }) =>
       loginAccount({ email, password }),
     onSuccess: (res) => {
       toast(res.message);
@@ -45,10 +43,10 @@ const Login = () => {
   }
 
   useEffect(() => {
-      if (user?.success) {
-        navigate('/');
-      }
-    }, [user, navigate]);
+    if (user?.success) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   return (
     <div className=' bg-[#0f0f0f]   m-0 sm:ml-21  p-2  '>

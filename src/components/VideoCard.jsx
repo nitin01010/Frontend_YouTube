@@ -29,7 +29,7 @@ const VideoCard = ({ data }) => {
                     <p>{data?.title}</p>
                     <h2 className=" text-gray-200 text-sm py-1">{channelId}</h2>
                     <span className=" flex gap-3 py-1">
-                        <p className=" text-gray-200 text-sm">{formattedViews } views .</p>
+                        <p className=" text-gray-200 text-sm">{formattedViews} views .</p>
                         <p className=" text-gray-200 text-sm">{hour} Hours ago</p>
                     </span>
                 </div>

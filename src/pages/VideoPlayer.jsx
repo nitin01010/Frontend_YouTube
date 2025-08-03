@@ -1,18 +1,30 @@
 import { ArrowDownToLine, EllipsisVertical, Forward, Pen, ThumbsDown, ThumbsUp, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { createComments, DeleteComments, findByIdVideoPlay, UpdateComments } from '../api/api';
-import { useMutation } from '@tanstack/react-query';
+import { createComments, DeleteComments, findByIdVideoPlay, handleLikeVideo, UpdateComments } from '../api/api';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
 
 const VideoPlayer = () => {
+  const queryClient = useQueryClient();
   const [showDescription, setShowDescription] = useState(false);
   const { id } = useParams();
   const location = useLocation();
   const fullId = `${id}${location.search}`;
 
-  const { mutate, isLoading, isError, error, data } = useMutation({
+  const {
+    mutate,
+    isLoading,
+    isError,
+    error,
+    data,
+  } = useMutation({
     mutationFn: (id) => findByIdVideoPlay({ id }),
+    onSuccess: (data, variables) => {
+      // Store in cache for optional later use
+      queryClient.setQueryData(['video', variables], data);
+    },
   });
 
   useEffect(() => {
@@ -21,11 +33,21 @@ const VideoPlayer = () => {
     }
   }, [fullId, mutate]);
 
-  if (isLoading) return <div className=' ml-22 font-bold text-2xl uppercase text-center  p-10'>Loading...</div>;
+  const handleRefetch = () => {
+    mutate(fullId);
+  };
 
-  if (isError) return <div className=' ml-22 font-bold text-2xl uppercase text-center  p-10'>Error: {error.message}</div>;
+  if (isLoading) {
+    return <div className=' m-0 sm:ml-22 font-bold text-2xl uppercase text-center p-10'>Loading...</div>;
+  }
 
-  if (!data) return <div className=' ml-22 font-bold text-2xl uppercase text-center  p-10'>No data yet</div>;
+  if (isError) {
+    return <div className=' m-0 sm:ml-22 font-bold text-2xl uppercase text-center p-10'>Error: {error.message}</div>;
+  }
+
+  if (!data) {
+    return <div className=' m-0 sm:ml-22 font-bold text-2xl uppercase text-center p-10'>No data yet</div>;
+  }
 
   const {
     title,
@@ -41,24 +63,24 @@ const VideoPlayer = () => {
   } = data?.data;
 
   return (
-    <div className=' ml-21.5 p-2  transition-all ease-linear flex gap-3 '>
-      <div className="w-full px-4 sm:px-6 md:px-1 transition-all ease-linear mt-1">
-        {/* <VideoPage id={id} /> */}
+    <div className=' ml-0 sm:ml-21.5  transition-all ease-linear flex gap-3'>
+      <div className="w-full px-2  sm:px-6 md:px-1 transition-all ease-linear mt-1">
+        <VideoPage id={id} />
         <TitlePage title={title} />
-        <ButtonsPages item={{ likes, dislikes, thumbnailUrl, channelId, subscribers }} />
+        <ButtonsPages item={{ likes, dislikes, thumbnailUrl, channelId, subscribers, fullId }} fullId={fullId} />
         <DescriptionPage item={{ showDescription, setShowDescription, views, description, uploadDate }} />
-        <CommentPage item={comments} fullId={fullId} />
+        <CommentPage item={comments} fullId={fullId} onCommentPosted={handleRefetch} />
       </div>
-      <div className=' hidden transition-all ease-linear lg:block rounded-lg bg-[#5757576c] p-1 w-[500px] ' />
+      <div className='hidden transition-all ease-linear lg:block rounded-lg bg-[#5757576c] p-1 w-[500px]' />
     </div>
-  )
-}
+  );
+};
 
 export default VideoPlayer
 
 const VideoPage = ({ id }) => {
   return (
-    <div className="relative w-full pb-[56.25%] rounded-md overflow-hidden">
+    <div className="relative w-full  h-[400px] sm:h-0 pb-[56.25%] rounded-md overflow-hidden">
       <iframe
         src={`https://www.youtube.com/embed/${id}?autoplay=1&mute=0`}
         className="absolute top-0 left-0 w-full h-full"
@@ -75,48 +97,92 @@ const TitlePage = ({ title }) => <p className="text-xl font-semibold py-2 capita
 </p>
 
 const ButtonsPages = (props) => {
-  const { likes, dislikes, thumbnailUrl, channelId, subscribers } = props?.item;
+  const { thumbnailUrl, channelId, subscribers, dislikes } = props?.item;
+  const initialLikes = props?.item?.likes || 0;
+  const videoId = props.fullId;
+
+  const user = useSelector((state) => state.user.value);
+  const [likesCount, setLikesCount] = useState(initialLikes);
+  const [isLiked, setIsLiked] = useState(
+    user?.userId?.likedVideos?.includes(videoId) ?? false
+  );
+
+  const { mutate } = useMutation({
+    mutationFn: ({ userId, videoId }) => handleLikeVideo({ userId, videoId }),
+    onSuccess: (res) => {
+      toast(res.message);
+      if (res.message === "Video liked successfully") {
+        setLikesCount((prev) => prev + 1);
+        setIsLiked(true);
+      } else if (res.message === "Video unliked successfully") {
+        setLikesCount((prev) => Math.max(0, prev - 1));
+        setIsLiked(false);
+      }
+    },
+    onError: (err) => {
+      const message = err?.response?.data?.message || 'Something went wrong.';
+      toast(message);
+    },
+  });
+
+  const handleLikeEvent = () => {
+    mutate({
+      userId: user?.userId?._id,
+      videoId,
+    });
+  };
+
+
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center py-2 gap-4 md:gap-0">
-      <div className="flex gap-4 items-center">
-        <img
-          src={`${thumbnailUrl}`}
-          className="object-cover w-10  h-10 rounded-full border outline-none"
-          alt="channel avatar"
-        />
-        <div className="flex flex-col">
-          <p className="font-semibold">{channelId}</p>
-          <p className="text-xs text-gray-300">{subscribers === undefined ? 0 : subscribers} subscribers</p>
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center py-2 gap-4 w-full">
+      {/* Channel Info and Subscribe Button */}
+      <div className="flex items-center justify-between w-full md:w-auto gap-4">
+        <div className="flex items-center gap-3">
+          <img
+            src={thumbnailUrl}
+            className="object-cover w-10 h-10 rounded-full border outline-none"
+            alt="channel avatar"
+          />
+          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+            <p className="font-semibold">{channelId}</p>
+            <p className="text-xs text-gray-300">{subscribers ?? 0} subscribers</p>
+          </div>
         </div>
-        <button className="ml-2 min-w-[130px] w-[130px] h-[40px] text-black text-base bg-white rounded-full">
+        <button className="ml-auto w-[130px] h-[40px] text-black text-base bg-white rounded-full">
           Subscribe
         </button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="flex">
-          <button className="flex items-center justify-center w-[80px] rounded-l-full bg-[#575757] text-white h-[40px]">
-            <ThumbsUp />
-            <span className="ml-2">{likes}</span>
-          </button>
-          <button className="flex items-center justify-center w-[80px] rounded-r-full bg-[#575757] text-white h-[40px]">
+      {/* Action Buttons in One Row */}
+      <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 w-full md:w-auto">
+        {/* Like Button */}
+        <button
+          onClick={handleLikeEvent}
+          className="flex items-center justify-center px-4 rounded-full bg-[#575757] text-white h-[40px]"
+        >
+          {isLiked ? (
+            <ThumbsUp fill="white" stroke="white" />
+          ) : (
             <ThumbsDown />
-            <span className="ml-2">{dislikes}</span>
-          </button>
-        </div>
-        <button className="flex items-center gap-2 justify-center bg-[#575757] text-white w-[100px] h-[40px] rounded-full">
+          )}
+          <span className="ml-2">{likesCount}</span>
+        </button>
+
+        {/* Share Button */}
+        <button className="flex items-center justify-center gap-2 px-4 h-[40px] bg-[#575757] text-white rounded-full">
           <Forward />
           <span>Share</span>
         </button>
 
-        <button className="flex items-center gap-2 bg-[#575757] text-white w-[140px] h-[40px] rounded-full">
-          <ArrowDownToLine className="ml-3" />
+        {/* Download Button */}
+        <button className="flex items-center justify-center gap-2 px-4 h-[40px] bg-[#575757] text-white rounded-full">
+          <ArrowDownToLine />
           <span>Download</span>
         </button>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const DescriptionPage = ({ item }) => {
   const { setShowDescription, showDescription, views, description, uploadDate } = item;
@@ -142,6 +208,7 @@ const DescriptionPage = ({ item }) => {
 };
 
 const CommentPage = (props) => {
+  const user = useSelector((state) => state.user.value);
   const [input, setInput] = useState({ comment: '' });
   const [activeMenuIndex, setActiveMenuIndex] = useState(null);
   const [editIndex, setEditIndex] = useState(null);
@@ -160,7 +227,12 @@ const CommentPage = (props) => {
 
   const { mutate } = useMutation({
     mutationFn: (val) => createComments(val),
-    onSuccess: (res) => toast(res.message),
+    onSuccess: (res) => {
+      toast(res.message);
+      if (props.onCommentPosted) {
+        props.onCommentPosted()
+      }
+    },
     onError: (err) => {
       toast(err?.response?.data?.message);
       navigate('/signin');
@@ -176,7 +248,12 @@ const CommentPage = (props) => {
 
   const { mutate: mutate1 } = useMutation({
     mutationFn: DeleteComments,
-    onSuccess: (res) => toast(res.message),
+    onSuccess: (res) => {
+      toast(res.message)
+      if (props.onCommentPosted) {
+        props.onCommentPosted()
+      }
+    },
     onError: (err) => toast(err?.response?.data?.message),
   });
 
@@ -192,6 +269,9 @@ const CommentPage = (props) => {
     mutationFn: UpdateComments,
     onSuccess: (res) => {
       toast(res.message);
+      if (props.onCommentPosted) {
+        props.onCommentPosted()
+      }
       setEditIndex(null);
     },
     onError: (err) => toast(err?.response?.data?.message),
@@ -292,10 +372,13 @@ const CommentPage = (props) => {
               )}
             </div>
 
-            <EllipsisVertical
+
+            {item?.userName === user?.userId?.username ? <EllipsisVertical
               onClick={() => toggleMenu(idx)}
               className='cursor-pointer'
-            />
+            /> : null
+            }
+
 
             {activeMenuIndex === idx && (
               <div className='absolute flex justify-around items-center w-[131px] bg-[#414141] right-1 top-14 p-2 h-[40px] rounded-md z-10'>

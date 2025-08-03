@@ -21,8 +21,8 @@ const VideoCard = ({ data }) => {
     const formattedViews = formatViews(views);
 
     return (
-        <div onClick={() => navigate(`/watch/${videoId}`)} className=" cursor-pointer  w-[100%] h-[343.61px] ml-2 py-2 ">
-            <img src={thumbnailUrl} className="object-cover w-[393.99px] h-[221.61px] rounded-md" />
+        <div onClick={() => navigate(`/watch/${videoId}`)} className=" cursor-pointer  h-[343.61px] ml-2 py-2 ">
+            <img src={thumbnailUrl} className="object-cover w-full  sm:w-[393.99px] h-[221.61px] rounded-md" />
             <div className=" flex py-1 gap-3 h-[122px] mt-2">
                 <img src={data?.thumbnailUrl} className="object-cover  bg-[#f2f2f2] border-none w-[36px]   rounded-full h-[36px] min-w-[36px] " />
                 <div>

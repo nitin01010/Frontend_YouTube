@@ -1,12 +1,13 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useMutation } from '@tanstack/react-query';
 import { signinAccount } from "../api/api";
-
+import { useSelector } from "react-redux";
 
 const Signup = () => {
-  const [messageError, setMessageError] = useState();
+  const user = useSelector(state => state.user.value);
+
   const [input, SetInput] = useState({
     username: '',
     email: '',
@@ -46,8 +47,15 @@ const Signup = () => {
    
   };
 
+  
+ useEffect(() => {
+    if (user?.success) {
+      navigate('/');
+    }
+  }, [user, navigate]);
+
   return (
-    <div className=' bg-[#0f0f0f]  h-screen m-auto ml-21  p-2  '>
+    <div className=' bg-[#0f0f0f]    m-0 sm:ml-21  p-2  '>
       <div className='  w-full md:w-[50%] lg:w-[35%] xl:w-[40%]  m-auto  h-[600px]  py-20 '>
         <h1 className=' text-3xl   text-center text-white  mt-5 font-bold '><b>Sign in your Account</b></h1>
         <div className=" flex flex-col gap-4 mt-10 ">

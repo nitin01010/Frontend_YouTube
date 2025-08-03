@@ -1,10 +1,12 @@
-import { use, useState } from "react"
+import { use, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { loginAccount } from "../api/api";
 import { useMutation } from "@tanstack/react-query";
+import { useSelector } from "react-redux";
 
 const Login = () => {
+  const user = useSelector(state => state.user.value);
   const [input, SetInput] = useState({
     email: '',
     password: ''
@@ -18,7 +20,6 @@ const Login = () => {
 
 
   const navigate = useNavigate();
-
 
   const { mutate } = useMutation({
     mutationFn: ({email, password }) =>
@@ -43,8 +44,14 @@ const Login = () => {
     SetInput({ email: '', password: '' });
   }
 
+  useEffect(() => {
+      if (user?.success) {
+        navigate('/');
+      }
+    }, [user, navigate]);
+
   return (
-    <div className=' bg-[#0f0f0f]  h-screen m-auto ml-21  p-2  '>
+    <div className=' bg-[#0f0f0f]   m-0 sm:ml-21  p-2  '>
       <div className='  w-full md:w-[50%] lg:w-[35%] xl:w-[40%]  m-auto  h-[600px]  py-20 '>
         <h1 className=' text-3xl   text-center text-white mt-5 font-bold '><b>Welcome Back....</b></h1>
         <div className=" flex flex-col gap-4 mt-10 ">

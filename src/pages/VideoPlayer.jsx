@@ -1,8 +1,9 @@
 import { ArrowDownToLine, EllipsisVertical, Forward, Pen, ThumbsDown, ThumbsUp, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
-import { createComments, DeleteComments, findByIdVideoPlay } from '../api/api';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { createComments, DeleteComments, findByIdVideoPlay, UpdateComments } from '../api/api';
+import { useMutation } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 
 const VideoPlayer = () => {
   const [showDescription, setShowDescription] = useState(false);
@@ -13,10 +14,6 @@ const VideoPlayer = () => {
   const { mutate, isLoading, isError, error, data } = useMutation({
     mutationFn: (id) => findByIdVideoPlay({ id }),
   });
-
-
-
-
 
   useEffect(() => {
     if (fullId) {
@@ -147,48 +144,69 @@ const DescriptionPage = ({ item }) => {
 const CommentPage = (props) => {
   const [input, setInput] = useState({ comment: '' });
   const [activeMenuIndex, setActiveMenuIndex] = useState(null);
+  const [editIndex, setEditIndex] = useState(null);
+  const [editText, setEditText] = useState('');
+  const navigate = useNavigate();
 
   const toggleMenu = (index) => {
     setActiveMenuIndex(prev => prev === index ? null : index);
   };
 
-  const handleEdit = (item) => {
-    console.log("Edit clicked:", item);
+  const handleEdit = (item, idx) => {
+    setEditIndex(idx);
+    setEditText(item.text);
     setActiveMenuIndex(null);
   };
 
-
-
   const { mutate } = useMutation({
     mutationFn: (val) => createComments(val),
-    onSuccess: () => {
-      window.location.reload();
-    },
+    onSuccess: (res) => toast(res.message),
     onError: (err) => {
-      console.error('Search error:', err);
+      toast(err?.response?.data?.message);
+      navigate('/signin');
     },
   });
 
   const handleComments = () => {
     const { comment } = input;
     const authToken = localStorage.getItem("authToken");
-    mutate({ comments: comment, authToken, videoId: props?.fullId })
+    mutate({ comments: comment, authToken, videoId: props?.fullId });
     setInput({ comment: '' });
-  }
+  };
 
   const { mutate: mutate1 } = useMutation({
-    mutationFn: DeleteComments, 
-    onSuccess:()=> {
-        window.location.reload();
-    }
+    mutationFn: DeleteComments,
+    onSuccess: (res) => toast(res.message),
+    onError: (err) => toast(err?.response?.data?.message),
   });
 
   const handleDelete = (item) => {
     const { userId, _id: commentId } = item;
     const videoId = props?.fullId;
-
-    mutate1({ userId, videoId, commentId });
+    const authToken = localStorage.getItem("authToken");
+    mutate1({ userId, videoId, commentId, authToken });
     setActiveMenuIndex(null);
+  };
+
+  const { mutate: updateCommentMutation } = useMutation({
+    mutationFn: UpdateComments,
+    onSuccess: (res) => {
+      toast(res.message);
+      setEditIndex(null);
+    },
+    onError: (err) => toast(err?.response?.data?.message),
+  });
+
+  const handleUpdate = (item) => {
+    console.log(item);
+    const authToken = localStorage.getItem("authToken");
+    updateCommentMutation({
+      commentId: item._id,
+      updatedText: editText,
+      authToken,
+      videoId: props?.fullId,
+      userId: item.userId
+    });
   };
 
   return (
@@ -226,13 +244,15 @@ const CommentPage = (props) => {
         const formatted = date.toLocaleTimeString('en-US', {
           hour: '2-digit',
           minute: '2-digit',
-          hour12: true
+          hour12: true,
         });
+
+        const isEditing = editIndex === idx;
 
         return (
           <div
             key={idx}
-            className='flex items-center relative mt-4 hover:bg-[#5757576c] transition duration-700 p-1 rounded-lg py-2 gap-5'
+            className='flex items-start relative mt-4 hover:bg-[#5757576c] transition duration-700 p-2 rounded-lg gap-5'
           >
             <img
               src='https://yt3.ggpht.com/a/default-user=s48-c-k-c0x00ffffff-no-rj'
@@ -243,7 +263,33 @@ const CommentPage = (props) => {
                 <h2 className='capitalize text-sm'>@{userName}</h2>
                 <p className='text-sm'>{formatted}</p>
               </div>
-              <p className='text-sm py-2'>{text}</p>
+
+              {isEditing ? (
+                <>
+                  <textarea
+                    className='w-full text-sm mt-2  text-white p-2 rounded border border-[#575757]'
+                    value={editText}
+                    rows={2}
+                    onChange={(e) => setEditText(e.target.value)}
+                  />
+                  <div className='flex gap-3 mt-2'>
+                    <button
+                      className='text-sm bg-blue-500 px-3 py-1 rounded hover:bg-blue-700'
+                      onClick={() => handleUpdate(item)}
+                    >
+                      Save
+                    </button>
+                    <button
+                      className='text-sm bg-gray-500 px-3 py-1 rounded hover:bg-gray-600'
+                      onClick={() => setEditIndex(null)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <p className='text-sm py-2'>{text}</p>
+              )}
             </div>
 
             <EllipsisVertical
@@ -251,13 +297,18 @@ const CommentPage = (props) => {
               className='cursor-pointer'
             />
 
-            {/* Dropdown menu */}
             {activeMenuIndex === idx && (
-              <div
-                className='absolute flex justify-around items-center w-[131px] bg-[#414141] right-1 top-14 p-2 h-[40px] rounded-md z-10'
-              >
-                <Pen size={20} onClick={() => handleEdit(item)} className='cursor-pointer hover:text-blue-500' />
-                <Trash size={20} onClick={() => handleDelete(item)} className='cursor-pointer hover:text-blue-500' />
+              <div className='absolute flex justify-around items-center w-[131px] bg-[#414141] right-1 top-14 p-2 h-[40px] rounded-md z-10'>
+                <Pen
+                  size={20}
+                  onClick={() => handleEdit(item, idx)}
+                  className='cursor-pointer hover:text-blue-500'
+                />
+                <Trash
+                  size={20}
+                  onClick={() => handleDelete(item)}
+                  className='cursor-pointer hover:text-blue-500'
+                />
               </div>
             )}
           </div>

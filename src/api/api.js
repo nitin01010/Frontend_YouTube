@@ -52,11 +52,37 @@ export const createComments = async ({ comments, videoId, authToken }) => {
 
 export const DeleteComments = async ({ userId,
   videoId,
-  commentId, }) => {
+  commentId, authToken }) => {
   const response = await axios.post('http://localhost:8080/api/v1/youtube/comment/delete', {
     userId,
     videoId,
     commentId,
+    authToken
   });
   return response.data;
+};
+
+export const UpdateComments = async ({ userId,videoId,commentId, authToken, updatedText }) => {
+  const response = await axios.post('http://localhost:8080/api/v1/youtube/comment/edit', {
+    userId,
+    videoId,
+    commentId,
+    authToken,
+    updatedText
+  });
+  return response.data;
+};
+
+export const handleAuth = async ({ authToken }) => {
+  try {
+    const response = await axios.get('http://localhost:8080/api/v1/auth', {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+    return response.data.success;
+  } catch (error) {
+    console.error('Auth failed:', error?.response?.data || error.message);
+    return { success: false };
+  }
 };

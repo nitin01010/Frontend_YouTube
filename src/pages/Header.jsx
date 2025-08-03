@@ -62,7 +62,6 @@ const Header = () => {
     mutate(input.search);
   };
 
-  const authToken = localStorage.getItem("authToken");
 
   return (
     <>
@@ -106,36 +105,30 @@ const Header = () => {
 
 
 
-        {
-          authToken ? (
-            <div className='flex items-center gap-10 w-[15%] mt-2'>
-              <span className='hover:bg-[#212121] transition-all ease-linear min-w-[40px] w-[40px] h-[40px] rounded-full flex items-center justify-center'>
-                <Video size={30} />
-              </span>
-              <span className='hover:bg-[#212121] transition-all ease-linear min-w-[40px] w-[40px] h-[40px] rounded-full flex items-center justify-center'>
-                <Bell size={28} />
-              </span>
-              <span className='hover:bg-[#212121] transition-all ease-linear min-w-[40px] w-[40px] h-[40px] rounded-full flex items-center justify-center'>
-                <CircleUser size={30} />
-              </span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => navigate('/signin')}
-                className="flex items-center gap-2 px-3 min-w-[100px] py-2 border border-gray-600 rounded-full hover:bg-[#222] transition"
-              >
-                <CircleUser size={20} />
-                <p>Sign in</p>
-              </button>
-            </div>
-          )
-        }
+          <div className='flex items-center gap-10 w-[15%] mt-2'>
+            <span className='hover:bg-[#212121] transition-all ease-linear min-w-[40px] w-[40px] h-[40px] rounded-full flex items-center justify-center'>
+              <Video size={30} />
+            </span>
+            <span className='hover:bg-[#212121] transition-all ease-linear min-w-[40px] w-[40px] h-[40px] rounded-full flex items-center justify-center'>
+              <Bell size={28} />
+            </span>
+            <span className='hover:bg-[#212121] transition-all ease-linear min-w-[40px] w-[40px] h-[40px] rounded-full flex items-center justify-center'>
+              <CircleUser size={30} />
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate('/signin')}
+              className="flex items-center gap-2 px-3 min-w-[100px] py-2 border border-gray-600 rounded-full hover:bg-[#222] transition"
+            >
+
+              <CircleUser size={20} />
+              <p>Sign in</p>
+            </button>
+          </div>
 
 
-
-
-        {/* Right */}
 
       </header>
 

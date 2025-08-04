@@ -80,32 +80,33 @@ const VideoPlayerBtns = (props) => {
       </div>
 
       {/* Action Buttons in One Row */}
-      <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 w-full md:w-auto">
-        {/* Like Button */}
-        <button
-          onClick={handleLikeEvent}
-          className="flex items-center justify-center px-4 rounded-full bg-[#575757] text-white h-[40px]"
-        >
-          {isLiked ? (
-            <ThumbsUp fill="white" stroke="white" />
-          ) : (
-            <ThumbsDown />
-          )}
-          <span className="ml-2">{likesCount}</span>
-        </button>
+      <div className="flex flex-row overflow-hidden items-center justify-center space-x-4 w-full">
+  {/* Like Button */}
+  <button
+    onClick={handleLikeEvent}
+    className="flex items-center justify-center px-4 rounded-full bg-[#575757] text-white h-[40px]"
+  >
+    {isLiked ? (
+      <ThumbsUp fill="white" stroke="white" />
+    ) : (
+      <ThumbsDown />
+    )}
+    <span className="ml-2">{likesCount}</span>
+  </button>
 
-        {/* Share Button */}
-        <button className="flex items-center justify-center gap-2 px-4 h-[40px] bg-[#575757] text-white rounded-full">
-          <Forward />
-          <span>Share</span>
-        </button>
+  {/* Share Button */}
+  <button className="flex items-center justify-center gap-2 px-4 h-[40px] bg-[#575757] text-white rounded-full">
+    <Forward />
+    <span>Share</span>
+  </button>
 
-        {/* Download Button */}
-        <button className="flex items-center justify-center gap-2 px-4 h-[40px] bg-[#575757] text-white rounded-full">
-          <ArrowDownToLine />
-          <span>Download</span>
-        </button>
-      </div>
+  {/* Download Button */}
+  <button className="flex items-center justify-center gap-2 px-4 h-[40px] bg-[#575757] text-white rounded-full">
+    <ArrowDownToLine />
+    <span>Download</span>
+  </button>
+</div>
+
     </div>
   )
 }

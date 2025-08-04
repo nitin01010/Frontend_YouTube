@@ -115,12 +115,14 @@ npm install
 # Run both frontend and backend
 npm run dev
 
+## Demo Videos
 
-# video 
-https://www.loom.com/share/9818a0d690a540db87d55ced80b4e26c?sid=858493c9-4af6-4f83-956b-7f6d5e08b026
-https://www.loom.com/share/88c93a8c54764044b56383783961bf92?sid=a91d5216-c2b8-46e5-8d69-f9531fd0140d
+- [Watch Video 1 on Loom](https://www.loom.com/share/9818a0d690a540db87d55ced80b4e26c?sid=858493c9-4af6-4f83-956b-7f6d5e08b026)
+- [Watch Video 2 on Loom](https://www.loom.com/share/88c93a8c54764044b56383783961bf92?sid=a91d5216-c2b8-46e5-8d69-f9531fd0140d)
 
-![alt text](./public/image.png);
-![alt text](./public/image1.png)
-![alt text](./public/image2.png)
-![alt text](./public/image4.png)
+## Screenshots
+
+![Screenshot 1](./public/image.png)
+![Screenshot 2](./public/image1.png)
+![Screenshot 3](./public/image2.png)
+![Screenshot 4](./public/image4.png)

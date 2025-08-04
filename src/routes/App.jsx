@@ -9,6 +9,7 @@ import Subscriptions from "../pages/Subscriptions";
 import VideoPlayer from "../pages/VideoPlayer";
 import ErrorPage from "../pages/ErrorPage";
 import YourProfile from "../pages/yourProfile";
+import ChannlePage from "../pages/ChannlePage";
 
 
 
@@ -39,6 +40,9 @@ const appRoute = createBrowserRouter([
       },
       {
         path: '/profile', element: <YourProfile />
+      },
+      {
+        path: '/in/:channelName', element: <ChannlePage />
       },
     ],
     errorElement:<ErrorPage />

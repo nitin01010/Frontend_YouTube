@@ -1,8 +1,11 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const ErrorPage = () => {
   const navigate = useNavigate()
-
+  useEffect(() => {
+    navigate("/");
+  }, []);
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#0f0f0f] px-6">
       <div className="max-w-md text-center bg-[#0f0f0f] p-10 rounded-2xl shadow-xl">

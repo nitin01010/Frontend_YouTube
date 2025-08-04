@@ -112,3 +112,16 @@ export const handleLikeVideo = async ({ userId, videoId }) => {
     return { success: false };
   }
 };
+
+export const handleCreateChannle = async ({ id,channelName }) => {
+  try {
+    const response = await axios.post(`http://localhost:8080/api/v1/youtube/create/channle`, {
+      id,
+      channelName
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Auth failed:', error?.response?.data || error.message);
+    return { success: false };
+  }
+};

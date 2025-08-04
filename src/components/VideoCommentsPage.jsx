@@ -77,7 +77,6 @@ const VideoCommentsPage = (props) => {
     });
 
     const handleUpdate = (item) => {
-        console.log(item);
         const authToken = localStorage.getItem("authToken");
         updateCommentMutation({
             commentId: item._id,

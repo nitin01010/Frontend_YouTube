@@ -4,8 +4,10 @@ import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import { ArrowDownToLine, Forward, ThumbsDown, ThumbsUp } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 const VideoPlayerBtns = (props) => {
+  const [sub, setSub] = useState(true);
      const { thumbnailUrl, channelId, subscribers, dislikes } = props?.item;
   const initialLikes = props?.item?.likes || 0;
   const videoId = props.fullId;
@@ -49,6 +51,12 @@ const VideoPlayerBtns = (props) => {
       videoId,
     });
   };
+
+  const handleSub = () => {
+      confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+      setSub(!sub);
+    }
+
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center py-2 gap-4 w-full">
       {/* Channel Info and Subscribe Button */}
@@ -64,9 +72,11 @@ const VideoPlayerBtns = (props) => {
             <p className="text-xs text-gray-300">{subscribers ?? 0} subscribers</p>
           </div>
         </div>
-        <button className="ml-auto w-[130px] h-[40px] text-black text-base bg-white rounded-full">
-          Subscribe
-        </button>
+         <button
+            onClick={handleSub}
+            className={` w-full ${sub === true ? 'bg-white' : 'bg-black text-white font-bold'} transition-all ease-linear sm:w-[130px] mt-2 capitalize text-sm  rounded-full text-black h-[36px]`}>
+            {sub ? 'subscriber' : 'subscriberd'}
+          </button>
       </div>
 
       {/* Action Buttons in One Row */}

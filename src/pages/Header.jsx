@@ -219,11 +219,6 @@ const PrivateView = () => {
         className={`bg-gray-900 shadow-2xl w-[190px] rounded-md p-3 absolute right-0 top-14 transition-all duration-500 ease-in-out transform
           ${status ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-5 pointer-events-none'}`}
       >
-        <img
-          src={user.userId?.avatar[0] || 'https://img.icons8.com/?size=100&id=bOXN3AZhMCek&format=png&color=000000'}
-          alt="User"
-          className="w-[30px] h-[30px] m-auto mb-3 object-cover rounded-md"
-        />
         <p className="text-center text-2xl capitalize font-bold">{user.userId?.username}</p>
         <p className="text-center text-sm py-2 font-bold">{user.userId?.email}</p>
         <div className=' flex items-center gap-2'>

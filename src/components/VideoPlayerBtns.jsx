@@ -74,7 +74,7 @@ const VideoPlayerBtns = (props) => {
         </div>
          <button
             onClick={handleSub}
-            className={` w-full ${sub === true ? 'bg-white' : 'bg-black text-white font-bold'} transition-all ease-linear sm:w-[130px] mt-2 capitalize text-sm  rounded-full text-black h-[36px]`}>
+            className={`  ${sub === true ? 'bg-white' : 'bg-black text-white font-bold'} transition-all ease-linear w-[130px] mt-2 capitalize text-sm  rounded-full text-black h-[36px]`}>
             {sub ? 'subscriber' : 'subscriberd'}
           </button>
       </div>

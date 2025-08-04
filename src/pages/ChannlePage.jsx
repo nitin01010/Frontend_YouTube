@@ -72,7 +72,7 @@ const ChannelPage = () => {
         {activeTab === 'Home' && (
           <div>
             <h3 className='font-bold px-1 py-3'>Videos</h3>
-            <div className='flex flex-col sm:flex-row sm:flex-wrap gap-4'>
+            {/* <div className='flex flex-col sm:flex-row sm:flex-wrap gap-4'>
               <div className='w-full sm:w-[250px]'>
                 <img
                   src='https://i.ytimg.com/vi/j6VfSQ2S9Lk/hqdefault.jpg'
@@ -81,7 +81,7 @@ const ChannelPage = () => {
                 />
                 <p className='mt-2 text-sm'>KNIFE ??? OPENING SPECTRUM CASES!</p>
               </div>
-            </div>
+            </div> */}
           </div>
         )}
 

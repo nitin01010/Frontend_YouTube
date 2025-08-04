@@ -29,7 +29,7 @@ const YourProfile = () => {
         setChannelName('');
         navigate(`/in/${createdChannel}`);
       } else {
-        toast.error("Please refresh");
+        toast.error('Please refresh');
       }
     },
     onError: (err) => {
@@ -49,7 +49,6 @@ const YourProfile = () => {
   const { email, username, _id, avatar } = user?.userId || {};
   const userChannel = user?.userId?.channels?.[0]?.channelName;
 
-
   const handleChannelCreate = () => {
     if (!channelName.trim()) {
       toast.warning('Channel name cannot be empty.');
@@ -58,10 +57,9 @@ const YourProfile = () => {
     mutate({ channelName, id: _id });
   };
 
-
   return (
-    <div className="mt-28 bg-[#0f0f0f] flex items-center justify-center p-6">
-      <div className="bg-[#0f0f0f] shadow-2xl rounded-2xl p-8 w-full max-w-2xl text-center">
+    <div className="mt-28 bg-[#0f0f0f] flex items-center justify-center p-4 sm:p-6">
+      <div className="bg-[#0f0f0f] shadow-2xl rounded-2xl p-6 sm:p-8 w-full max-w-2xl text-center">
         <div className="flex justify-center mb-4">
           <img
             src={
@@ -94,7 +92,7 @@ const YourProfile = () => {
 
       {showModal && (
         <div className="fixed inset-0 bg-opacity-10 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-          <div className="bg-white w-[50%] h-[550px] text-black rounded-2xl shadow-2xl p-6 relative">
+          <div className="bg-white w-full sm:w-[90%] md:w-[70%] lg:w-[50%] h-[90%] sm:h-[550px] text-black rounded-2xl shadow-2xl p-4 sm:p-6 relative overflow-y-auto">
             <p className="flex cursor-pointer justify-end" onClick={() => setShowModal(false)}>
               <X size={30} />
             </p>
@@ -110,7 +108,7 @@ const YourProfile = () => {
                 type="text"
                 value={channelName.toUpperCase()}
                 onChange={(e) => setChannelName(e.target.value)}
-                className="w-full px-5 py-3 bg-gray-50 rounded-md text-black mt-2 border-none outline-none"
+                className="w-full px-4 sm:px-5 py-3 bg-gray-50 rounded-md text-black mt-2 border-none outline-none"
                 placeholder="Enter your channel name"
               />
 
@@ -121,15 +119,15 @@ const YourProfile = () => {
                 type="email"
                 value={email}
                 disabled
-                className="w-full px-5 py-3 bg-gray-50 rounded-md text-black mt-3 border-none outline-none capitalize"
+                className="w-full px-4 sm:px-5 py-3 bg-gray-50 rounded-md text-black mt-3 border-none outline-none capitalize"
               />
             </div>
 
-            <div className="flex gap-3 mt-6">
+            <div className="flex flex-col sm:flex-row gap-3 mt-6">
               <button
                 onClick={handleChannelCreate}
                 disabled={isLoading}
-                className="flex-1 py-4 text-lg bg-black text-white rounded-full font-semibold mt-8"
+                className="w-full py-4 text-lg bg-black text-white rounded-full font-semibold mt-4 sm:mt-8"
               >
                 {isLoading ? 'Creating...' : `CREATE @${channelName.toUpperCase()}`}
               </button>

@@ -3,13 +3,13 @@ import axios from 'axios';
 
 //  GET AL VIDEO 
 export const youtubeAllvideos = async () => {
-  const response = await axios.get(`http://localhost:8080/api/v1/youtube`);
+  const response = await axios.get(`https://backendyoutube-production-1394.up.railway.app/api/v1/youtube`);
   return response.data;
 };
 
 // PLAY WITH VIDEO ID
 export const findByIdVideoPlay = async ({ id }) => {
-  const response = await axios.post(`http://localhost:8080/api/v1/youtube/watch`, {
+  const response = await axios.post(`https://backendyoutube-production-1394.up.railway.app/api/v1/youtube/watch`, {
     id,
   });
   return response.data;
@@ -17,7 +17,7 @@ export const findByIdVideoPlay = async ({ id }) => {
 
 //  FIND BY CATEGORY 
 export const findBycategory = async ({ category }) => {
-  const response = await axios.post(`http://localhost:8080/api/v1/youtube/category`, {
+  const response = await axios.post(`https://backendyoutube-production-1394.up.railway.app/api/v1/youtube/category`, {
     category,
   });
   return response.data;
@@ -25,7 +25,7 @@ export const findBycategory = async ({ category }) => {
 
 // SEARCH BY KEYWORD
 export const findBySearch = async ({ search }) => {
-  const response = await axios.post(`http://localhost:8080/api/v1/youtube/search`, {
+  const response = await axios.post(`https://backendyoutube-production-1394.up.railway.app/api/v1/youtube/search`, {
     search,
   });
   return response.data;
@@ -33,7 +33,7 @@ export const findBySearch = async ({ search }) => {
 
 //  CREATE ACCOUNT
 export const signinAccount = async ({ username, email, password }) => {
-  const response = await axios.post(`http://localhost:8080/api/v1/user/register`, {
+  const response = await axios.post(`https://backendyoutube-production-1394.up.railway.app/api/v1/user/register`, {
     username,
     email,
     password
@@ -43,7 +43,7 @@ export const signinAccount = async ({ username, email, password }) => {
 
 //  LOGIN ACCOUNT
 export const loginAccount = async ({ email, password }) => {
-  const response = await axios.post(`http://localhost:8080/api/v1/user/login`, {
+  const response = await axios.post(`https://backendyoutube-production-1394.up.railway.app/api/v1/user/login`, {
     email,
     password
   });
@@ -52,7 +52,7 @@ export const loginAccount = async ({ email, password }) => {
 
 // CREATE COMMENT
 export const createComments = async ({ comments, videoId, authToken }) => {
-  const response = await axios.post(`http://localhost:8080/api/v1/youtube/comments`, {
+  const response = await axios.post(`https://backendyoutube-production-1394.up.railway.app/api/v1/youtube/comments`, {
     comments, videoId, authToken
   });
   return response.data;
@@ -62,7 +62,7 @@ export const createComments = async ({ comments, videoId, authToken }) => {
 export const DeleteComments = async ({ userId,
   videoId,
   commentId, authToken }) => {
-  const response = await axios.post(`http://localhost:8080/api/v1/youtube/comment/delete`, {
+  const response = await axios.post(`https://backendyoutube-production-1394.up.railway.app/api/v1/youtube/comment/delete`, {
     userId,
     videoId,
     commentId,
@@ -74,7 +74,7 @@ export const DeleteComments = async ({ userId,
 
 // UPDATE COMMENT
 export const UpdateComments = async ({ userId, videoId, commentId, authToken, updatedText }) => {
-  const response = await axios.post(`http://localhost:8080/api/v1/youtube/comment/edit`, {
+  const response = await axios.post(`https://backendyoutube-production-1394.up.railway.app/api/v1/youtube/comment/edit`, {
     userId,
     videoId,
     commentId,
@@ -87,7 +87,7 @@ export const UpdateComments = async ({ userId, videoId, commentId, authToken, up
 // CHECK AUTH USER IS VALID OR NOT 
 export const handleAuth = async ({ authToken }) => {
   try {
-    const response = await axios.get(`http://localhost:8080/api/v1/auth`, {
+    const response = await axios.get(`https://backendyoutube-production-1394.up.railway.app/api/v1/auth`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
       },
@@ -102,7 +102,7 @@ export const handleAuth = async ({ authToken }) => {
 //  LIKE A VIDOE 
 export const handleLikeVideo = async ({ userId, videoId }) => {
   try {
-    const response = await axios.post(`http://localhost:8080/api/v1/youtube/video/like/increment`, {
+    const response = await axios.post(`https://backendyoutube-production-1394.up.railway.app/api/v1/youtube/video/like/increment`, {
       videoId,
       userId
     });
@@ -115,7 +115,7 @@ export const handleLikeVideo = async ({ userId, videoId }) => {
 
 export const handleCreateChannle = async ({ id,channelName }) => {
   try {
-    const response = await axios.post(`http://localhost:8080/api/v1/youtube/create/channle`, {
+    const response = await axios.post(`https://backendyoutube-production-1394.up.railway.app/api/v1/youtube/create/channle`, {
       id,
       channelName
     });
